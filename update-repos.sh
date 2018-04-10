@@ -19,7 +19,7 @@ function update_repo () {
 #	git reset --hard HEAD >/dev/null
 	git branch -r --sort=-committerdate | head -n1 | sed 's/\s*origin\///g' | xargs git checkout >/dev/null
 	git pull
-	if [ $? = '0' ]; then
+	if [ $? == '1' ]; then
           ERR_LIST="${DIR} ${ERR_LIST}"
           (( ERR_NUM++ ))
         fi
@@ -51,7 +51,7 @@ if [ $# -eq 1 ]; then
 #  git config --global credential.helper 'cache --timeout=900'
   get_dirs $1
   if [ "$ERR_NUM" -gt "0" ]; then
-    echo -e "Number of errors: ${ERR_NUM}\nList of error repositories: ${ERR_LIST}"
+    echo -e "\nNumber of errors: ${ERR_NUM}\nList of error repositories: ${ERR_LIST}"
   fi
 else
   echo "Usage: `basename $0` dirname_or_regex"
