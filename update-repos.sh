@@ -2,13 +2,20 @@
 ERR_NUM=0
 ERR_LIST=""
 
-progressbar () {
+function progressbar () {
 	barlength=50
 	bar=$(printf "%${barlength}s\n" | tr ' ' '#')
 	bar2=$(printf "%${barlength}s\n" | tr ' ' '-')
 	n=$(($1*barlength/$2))
 	n2=$((barlength-n))
 	printf "\r[%-${barlength}s (%d%%)] \n" "${bar:0:n}${bar2:0:n2}" "$(echo $1/$2*100 | bc -l | sed 's/\..*//g')"
+}
+
+function check_err () {
+	if [ $1 != '0' ]; then
+          ERR_LIST="${DIR} ${ERR_LIST}"
+          (( ERR_NUM++ ))
+        fi
 }
 
 function update_repo () {
@@ -18,12 +25,9 @@ function update_repo () {
 	git fetch --all >/dev/null
 #	git reset --hard HEAD >/dev/null
 	git branch -r --sort=-committerdate | head -n1 | sed 's/\s*origin\///g' | xargs git checkout >/dev/null
+	check_err $?
 	git pull
-	if [ $? == '1' ]; then
-          ERR_LIST="${DIR} ${ERR_LIST}"
-          (( ERR_NUM++ ))
-        fi
-	set -e
+	check_err $?
         cd ..
 }
 
